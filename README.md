@@ -1,46 +1,54 @@
 # agent-memory-kit
 
-**Give your AI a brain that doesn't reset every conversation.**
+**A point of view on how AI agents should remember things — packaged so you can use it.**
 
-Build a typed memory + knowledge base your agents can read so they give smarter, more personal answers. Works with any LLM — ChatGPT, Claude, Gemini, your own. No vector DB. No embeddings. Just structured Markdown your AI reads in plain text.
+Most "AI memory" tools are vector databases doing fuzzy retrieval over chat history. They work until they don't, and you can't read or audit what your agent actually thinks it knows.
 
----
-
-## The problem
-
-LLMs don't actually have memory. Each conversation starts blank.
-
-You re-explain who you are. You restate your preferences. You paste the same context every time. Your AI doesn't know anything specific about you, your work, or your domain.
-
-Most "memory" tools fix this with vector databases — fuzzy embeddings of your chat history. They work until they don't, and you can't read or audit what's actually in there.
-
-This kit takes a different approach.
+We think there's a better way.
 
 ---
 
-## How it works
+## How to think about agent memory
 
-Five typed entries, modeled on what a coworker would actually remember about you:
+An AI agent should remember things the way a thoughtful coworker would. Not as a vector blob. Not as a giant search index over your chat history.
 
-- **`user`** — who you are, your role, your expertise, what you care about
-- **`feedback`** — preferences and corrections you want your AI to remember
-- **`project`** — facts about ongoing work that don't live in your code
-- **`reference`** — pointers to where information lives elsewhere (dashboards, tools, repos, docs)
-- **`knowledge`** — domain facts your AI should know (product specs, API conventions, your team's jargon, research notes)
+As **typed, structured notes you could write on an index card and read back in plain text**.
 
-Each entry is a Markdown document with frontmatter. Each one is editable, searchable, audit-able. Your agent reads them in plain text as part of its system prompt — no embeddings, no fuzzy retrieval, no opaque vector blob.
+Five categories cover almost everything you'd want an agent to remember:
 
-When you want to know what your AI "knows," you open a folder and read it.
+- **`user`** — who the person is, their role, their expertise, what they care about
+- **`feedback`** — preferences and corrections they've explicitly given
+- **`project`** — facts about ongoing work that don't live in code
+- **`reference`** — pointers to where information lives elsewhere (dashboards, repos, tools)
+- **`knowledge`** — domain facts the agent should treat as ground truth (product specs, conventions, jargon, research notes)
+
+If something you want to save doesn't fit one of these five, you probably don't need to save it. That constraint is the feature, not the limit.
 
 ---
 
-## Two ways to use it
+## Why typed memory beats vector memory
+
+- **Legible.** Open the folder. Read what your agent "knows."
+- **Editable.** When the agent learns something wrong, you fix one file.
+- **Auditable.** No mystery embedding-space drift. The memory is exactly what it looks like.
+- **Portable.** The same memory works across ChatGPT, Claude, Gemini, or your own model.
+- **Version-controllable.** Memory in `.md` files diffs cleanly. Roll it back, branch it, share it.
+
+Vector memory is great for fuzzy recall over conversation history. This is for the durable, structured stuff you'd write down on purpose.
+
+Use both if you want. They aren't competitors.
+
+---
+
+## The kit
+
+This repo turns the point of view above into code. Two ways to use it.
 
 ### 1. Notion template (no-code, fastest)
 
 If you don't want to write code, [start with the Notion template](./notion-template/).
 
-You'll set up a Notion database with the five entry types pre-configured, fill in a few memories and knowledge items, and copy a prompt block into ChatGPT, Claude, or any other LLM. Two minutes start to finish.
+You'll set up a Notion database with the five entry types pre-configured, fill in a few entries, and copy a prompt block into ChatGPT, Claude, or any other LLM. Two minutes start to finish.
 
 ### 2. TypeScript SDK (for builders)
 
@@ -58,9 +66,9 @@ const memory = new Memory({
 // Save who the user is
 await memory.save({
   name: 'user_profile',
-  description: 'User is a senior backend engineer at a fintech',
+  description: 'Senior backend engineer at a Series B fintech',
   type: 'user',
-  content: 'User is a senior engineer at a Series B fintech. Writes Go and TypeScript. Prefers concise technical answers, no marketing fluff.',
+  content: 'Writes Go and TypeScript. 7 years of experience. Prefers concise technical answers with code, not marketing fluff.',
 });
 
 // Save a domain fact
@@ -104,27 +112,17 @@ Implement a four-method `Adapter` interface in roughly 30 lines. See [`src/adapt
 
 ---
 
-## How this compares
+## What people build with this
 
-**vs. Mem0, Zep, Letta** — those are vector databases doing fuzzy retrieval over chat history. This is structured, legible memory you can read, edit, and reason about. Solve different problems. Use both if you want.
+A few patterns worth stealing:
 
-**vs. Cursor rules / Claude project memory** — those are tied to specific tools. This is provider-agnostic. Same memory, any LLM.
-
-**vs. Notion or Obsidian alone** — those are great vaults but have no agent integration. This wires your existing knowledge base directly into your AI's context window.
-
----
-
-## What you get out of it
-
-A few of the things AI enthusiasts have built with this pattern:
-
-- **Personal assistants** that actually remember your preferences across ChatGPT/Claude switches
+- **Personal assistants** that remember you across ChatGPT/Claude switches
 - **Coding agents** that know your codebase conventions, internal libraries, and error patterns
 - **Writing assistants** that know your voice, banned phrases, and stylistic preferences
-- **Research agents** that build a structured knowledge base across long projects
+- **Research agents** that build a structured knowledge base over long projects
 - **Customer-support copilots** that know your product specs, edge cases, and escalation rules
 
-Whatever you build, the agent reads memory the same way: Markdown injected into the system prompt. No magic.
+Whatever you build, the agent reads memory the same way: structured Markdown injected into the system prompt. No magic.
 
 ---
 
