@@ -55,13 +55,20 @@ export class Memory {
       feedback: [],
       project: [],
       reference: [],
+      knowledge: [],
     };
     for (const m of all) sections[m.type].push(m);
 
     let out =
-      '# Memory\n\nThe following are facts and preferences from prior conversations. Use them like notes from a colleague who already knows the user.\n';
+      '# Memory & Knowledge\n\nThe following are facts, preferences, and domain knowledge from prior conversations and stored references. Use them like notes from a colleague who already knows the user and the domain.\n';
 
-    const order: MemoryType[] = ['user', 'feedback', 'project', 'reference'];
+    const order: MemoryType[] = [
+      'user',
+      'feedback',
+      'project',
+      'reference',
+      'knowledge',
+    ];
     for (const type of order) {
       const entries = sections[type];
       if (entries.length === 0) continue;

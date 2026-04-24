@@ -1,33 +1,36 @@
 # agent-memory-kit
 
-**The open-source memory pattern behind [MetadataONE](https://metadataone.com)'s AI agents.**
+**Give your AI a brain that doesn't reset every conversation.**
 
-MetadataONE runs paid campaigns at Zoom, IBM, Notion, Cisco, and 200+ other enterprises using six AI specialists that share one persistent memory. Their agents don't forget — across 263,000+ experiments and $1B+ in sourced pipeline, every campaign builds on every prior result.
-
-This kit is the structured-memory pattern behind that system, stripped down and packaged so you can plug it into any agent you build.
+Build a typed memory + knowledge base your agents can read so they give smarter, more personal answers. Works with any LLM — ChatGPT, Claude, Gemini, your own. No vector DB. No embeddings. Just structured Markdown your AI reads in plain text.
 
 ---
 
-## The problem with most "agent memory"
+## The problem
 
-Most "agent memory" libraries are vector databases doing fuzzy search on chat history. They work until they don't. You can't read what's in there. You can't audit what your agent thinks it knows. You can't fix it when it gets something wrong about your user.
+LLMs don't actually have memory. Each conversation starts blank.
 
-When Charisse, Zoom's Digital Marketing Lead, said *"It's the most set-it-and-forget-it thing out there. Except the agent doesn't forget"* — she meant something specific. The agent has structured, durable memory of every campaign decision, every experiment outcome, every preference she's ever expressed. Not a vector blob. Real, legible memory.
+You re-explain who you are. You restate your preferences. You paste the same context every time. Your AI doesn't know anything specific about you, your work, or your domain.
 
-That's what this kit gives you.
+Most "memory" tools fix this with vector databases — fuzzy embeddings of your chat history. They work until they don't, and you can't read or audit what's actually in there.
+
+This kit takes a different approach.
 
 ---
 
 ## How it works
 
-Four memory types, modeled on what an actual coworker would remember about you:
+Five typed entries, modeled on what a coworker would actually remember about you:
 
-- **`user`** — who the person is, their role, expertise, what they care about
-- **`feedback`** — corrections and preferences they've given you
-- **`project`** — facts about ongoing work that don't live in code
-- **`reference`** — pointers to where information lives in external systems
+- **`user`** — who you are, your role, your expertise, what you care about
+- **`feedback`** — preferences and corrections you want your AI to remember
+- **`project`** — facts about ongoing work that don't live in your code
+- **`reference`** — pointers to where information lives elsewhere (dashboards, tools, repos, docs)
+- **`knowledge`** — domain facts your AI should know (product specs, API conventions, your team's jargon, research notes)
 
-Each memory is a Markdown document with frontmatter. Each one is editable, searchable, audit-able. Your agent reads them in plain text as part of its system prompt.
+Each entry is a Markdown document with frontmatter. Each one is editable, searchable, audit-able. Your agent reads them in plain text as part of its system prompt — no embeddings, no fuzzy retrieval, no opaque vector blob.
+
+When you want to know what your AI "knows," you open a folder and read it.
 
 ---
 
@@ -35,13 +38,9 @@ Each memory is a Markdown document with frontmatter. Each one is editable, searc
 
 ### 1. Notion template (no-code, fastest)
 
-If you don't want to write code, [start with the Notion template](./notion-template/). You'll get:
+If you don't want to write code, [start with the Notion template](./notion-template/).
 
-- A Notion database with the four memory types pre-configured
-- A copy-paste prompt block to drop into ChatGPT, Claude, or any other LLM
-- Two minutes to first memory
-
-That's the same architectural idea MetadataONE productizes, in a form you can use tonight.
+You'll set up a Notion database with the five entry types pre-configured, fill in a few memories and knowledge items, and copy a prompt block into ChatGPT, Claude, or any other LLM. Two minutes start to finish.
 
 ### 2. TypeScript SDK (for builders)
 
@@ -56,14 +55,23 @@ const memory = new Memory({
   adapter: new FilesystemAdapter({ path: './memory' }),
 });
 
+// Save who the user is
 await memory.save({
-  name: 'tone_preference',
-  description: 'User prefers concise responses, no bullets',
-  type: 'feedback',
-  content: 'User has corrected me twice for bulleted answers. Prefers prose. Why: easier to skim on mobile.',
+  name: 'user_profile',
+  description: 'User is a senior backend engineer at a fintech',
+  type: 'user',
+  content: 'User is a senior engineer at a Series B fintech. Writes Go and TypeScript. Prefers concise technical answers, no marketing fluff.',
 });
 
-// Inject memory into your LLM call
+// Save a domain fact
+await memory.save({
+  name: 'api_conventions',
+  description: 'Internal API uses snake_case and returns RFC 7807 errors',
+  type: 'knowledge',
+  content: 'All endpoints under /api/v2 use snake_case for fields and return RFC 7807 problem-details JSON for errors. Auth is Bearer-token JWT, 1h expiry.',
+});
+
+// Inject memory + knowledge into your LLM call
 const memoryBlock = await memory.prompt();
 // memoryBlock is a Markdown string. Drop it into your system prompt.
 ```
@@ -75,7 +83,7 @@ See [`examples/claude.ts`](./examples/claude.ts) for a full working agent.
 ## Backends
 
 ### Filesystem (default)
-Memory lives as `.md` files in a folder you choose. Version-control it. Edit it by hand. Diff it. Perfect for solo developers.
+Memory lives as `.md` files in a folder you choose. Version-control it. Edit it by hand. Diff it. Perfect for solo builders.
 
 ### Notion
 Memory lives as pages in a Notion database. Your team can read and edit memories without touching code. See [the Notion setup guide](./notion-template/).
@@ -92,34 +100,34 @@ const memory = new Memory({
 ```
 
 ### Custom (Vercel KV, Supabase, your own)
-Implement the four-method `Adapter` interface in roughly 30 lines. See [`src/adapters/filesystem.ts`](./src/adapters/filesystem.ts) as the reference implementation.
+Implement a four-method `Adapter` interface in roughly 30 lines. See [`src/adapters/filesystem.ts`](./src/adapters/filesystem.ts) as the reference implementation.
 
 ---
 
-## How this compares to Mem0, Zep, and Letta
+## How this compares
 
-Those tools are great for fuzzy retrieval over conversation history. They store everything, embed it, and let you query against semantic similarity.
+**vs. Mem0, Zep, Letta** — those are vector databases doing fuzzy retrieval over chat history. This is structured, legible memory you can read, edit, and reason about. Solve different problems. Use both if you want.
 
-This kit solves a different problem: **legible, structured memory you can read, edit, and reason about**. Memory you can show your CMO. Memory you can audit. Memory you can fix when it's wrong.
+**vs. Cursor rules / Claude project memory** — those are tied to specific tools. This is provider-agnostic. Same memory, any LLM.
 
-Use both if you want. They aren't competitors.
+**vs. Notion or Obsidian alone** — those are great vaults but have no agent integration. This wires your existing knowledge base directly into your AI's context window.
 
 ---
 
-## What MetadataONE adds on top
+## What you get out of it
 
-This kit handles the memory pattern. MetadataONE is the full system — six AI specialists (Sophia, Aria, Maya, Elena, Kai, and Jordan) that use this kind of structured memory to run paid campaigns end-to-end across LinkedIn, Google, Meta, X, Reddit, Bing, Facebook, and Instagram. They share context, hand work to each other, and never lose track of what worked last quarter.
+A few of the things AI enthusiasts have built with this pattern:
 
-If you want the productized version that 200+ enterprises already use, [book a demo at metadataone.com](https://metadataone.com).
+- **Personal assistants** that actually remember your preferences across ChatGPT/Claude switches
+- **Coding agents** that know your codebase conventions, internal libraries, and error patterns
+- **Writing assistants** that know your voice, banned phrases, and stylistic preferences
+- **Research agents** that build a structured knowledge base across long projects
+- **Customer-support copilots** that know your product specs, edge cases, and escalation rules
 
-If you want to build your own thing on the same memory foundation — that's what this repo is for.
+Whatever you build, the agent reads memory the same way: Markdown injected into the system prompt. No magic.
 
 ---
 
 ## License
 
 MIT. Use it however you want.
-
----
-
-Built as a companion to [MetadataONE](https://metadataone.com). Questions, ideas, or feedback: [open an issue](https://github.com/thoughtpilot99/agent-memory-kit/issues).

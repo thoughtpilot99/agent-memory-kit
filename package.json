@@ -1,7 +1,7 @@
 {
   "name": "agent-memory-kit",
   "version": "0.1.0",
-  "description": "The open-source memory pattern behind MetadataONE's AI agents. Typed, persistent memory for any LLM. Filesystem, Notion, or bring your own backend.",
+  "description": "Give your AI a brain that doesn't reset every conversation. Typed memory + knowledge base for any LLM. Filesystem, Notion, or bring your own backend.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -26,13 +26,16 @@
     "ai",
     "agent",
     "memory",
+    "knowledge-base",
     "llm",
     "anthropic",
     "openai",
+    "claude",
+    "chatgpt",
+    "gemini",
     "notion",
-    "metadataone"
+    "context"
   ],
-  "homepage": "https://metadataone.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/thoughtpilot99/agent-memory-kit.git"

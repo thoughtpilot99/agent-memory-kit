@@ -1,8 +1,10 @@
 /**
  * agent-memory-kit
  *
- * The open-source memory pattern behind MetadataONE's AI agents.
- * https://metadataone.com
+ * Give your AI a brain that doesn't reset every conversation.
+ * Typed memory + knowledge base for any LLM.
+ *
+ * https://github.com/thoughtpilot99/agent-memory-kit
  */
 export { Memory } from './memory.js';
 export { FilesystemAdapter } from './adapters/filesystem.js';

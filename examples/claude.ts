@@ -1,5 +1,5 @@
 /**
- * Example: a Claude-powered agent with persistent memory.
+ * Example: a Claude-powered assistant with persistent memory + knowledge.
  *
  * Run with:
  *   ANTHROPIC_API_KEY=sk-ant-... npx tsx examples/claude.ts
@@ -22,7 +22,7 @@ async function chat(userMessage: string): Promise<string> {
   const response = await client.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
-    system: `You are a helpful assistant for a B2B marketer.\n\n${memoryBlock}`,
+    system: `You are a helpful assistant.\n\n${memoryBlock}`,
     messages: [{ role: 'user', content: userMessage }],
   });
 
@@ -31,34 +31,50 @@ async function chat(userMessage: string): Promise<string> {
 }
 
 async function main() {
-  // Seed a few memories. In a real agent, these get written by the model
-  // as it learns about the user across conversations.
+  // Seed a few entries. In a real agent, these get written by the model
+  // as it learns about the user across conversations, or by you when you
+  // import a knowledge base.
+
+  // Who the user is
   await memory.save({
-    name: 'user_role',
-    description: 'Senior demand gen leader at a B2B SaaS company',
+    name: 'user_profile',
+    description: 'Senior backend engineer at a Series B fintech',
     type: 'user',
     content:
-      'User leads demand gen at a $50M ARR B2B SaaS company. 8 years of paid media experience. Reports to the CMO.',
+      'User is a senior backend engineer at a Series B fintech. Writes Go and TypeScript. 7 years of experience. Prefers concise technical answers with code, no marketing fluff.',
   });
 
+  // A preference the model should remember
   await memory.save({
-    name: 'tone_preference',
-    description: 'Prefers concise, data-led responses',
+    name: 'response_style',
+    description: 'No bullet points. Code first, prose second.',
     type: 'feedback',
     content:
-      'User has corrected me twice for fluffy answers. Prefers short, specific responses with numbers and named examples. Skip the throat-clearing.',
+      'User has corrected me twice for leading with bullet lists. Prefers code blocks first, then short prose explanations underneath. Skip preambles.',
   });
 
+  // Domain knowledge the model should treat as ground truth
   await memory.save({
-    name: 'q4_priority',
-    description: 'Q4 priority is reducing CAC by 20% without cutting pipeline',
-    type: 'project',
+    name: 'api_conventions',
+    description: 'Internal API: snake_case, RFC 7807 errors, Bearer JWT',
+    type: 'knowledge',
     content:
-      'CFO mandate: cut blended CAC by 20% in Q4 without dropping pipeline volume. User is exploring channel reallocation and AI agent tools to hit this.',
+      'All endpoints under /api/v2 use snake_case for JSON fields and return RFC 7807 problem-details JSON for errors. Auth is Bearer-token JWT with 1h expiry. Rate limit headers follow draft-ietf-httpapi-ratelimit-headers.',
   });
 
-  // Now ask the agent something. The memory above is automatically in context.
-  const reply = await chat('What channels should I prioritize this quarter?');
+  // A pointer to where things live
+  await memory.save({
+    name: 'monorepo_layout',
+    description: 'Where backend services and shared packages live',
+    type: 'reference',
+    content:
+      'Backend services in /services/<name>. Shared packages in /packages/. Migrations live alongside each service in /services/<name>/migrations.',
+  });
+
+  // Now ask a question. The memory above is automatically in context.
+  const reply = await chat(
+    'I need to add a new endpoint for fetching user preferences. What pattern should I follow?'
+  );
   console.log(reply);
 }
 
