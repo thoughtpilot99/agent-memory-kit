@@ -1,0 +1,55 @@
+{
+  "name": "agent-memory-kit",
+  "version": "0.1.0",
+  "description": "The open-source memory pattern behind MetadataONE's AI agents. Typed, persistent memory for any LLM. Filesystem, Notion, or bring your own backend.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "notion-template"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "memory",
+    "llm",
+    "anthropic",
+    "openai",
+    "notion",
+    "metadataone"
+  ],
+  "homepage": "https://metadataone.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thoughtpilot99/agent-memory-kit.git"
+  },
+  "author": "thought-pilot",
+  "license": "MIT",
+  "peerDependencies": {
+    "@notionhq/client": "^2.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@notionhq/client": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@notionhq/client": "^2.2.0",
+    "@types/node": "^20.0.0"
+  }
+}
